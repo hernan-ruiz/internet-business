@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Internet Business | Control de clientes</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="logo-internet-business.svg" alt="Internet Business - Conectando Hogares">
+    <div>
+      <p class="eyebrow">Administración de servicios</p>
+      <h1>Control de clientes</h1>
+    </div>
+  </div>
+
+  <button id="addClient" class="button">+ Agregar cliente</button>
+</header>
+
+<main>
+
+  <section class="summary">
+
+    <article class="metric total">
+      <span>Total de clientes</span>
+      <strong id="totalCount">0</strong>
+    </article>
+
+    <article class="metric current">
+      <span>Servicio vigente</span>
+      <strong id="currentCount">0</strong>
+    </article>
+
+    <article class="metric soon">
+      <span>Próximos a vencer</span>
+      <strong id="soonCount">0</strong>
+    </article>
+
+    <article class="metric overdue">
+      <span>Vencidos</span>
+      <strong id="overdueCount">0</strong>
+    </article>
+
+    <article class="metric payments">
+      <span>Pagos pendientes</span>
+      <strong id="pendingPaymentCount">0</strong>
+    </article>
+
+  </section>
+
+  <section class="panel">
+
+    <div class="tools">
+
+      <label class="search" for="searchInput">
+        <span>⌕</span>
+
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Buscar por nombre, teléfono o serial"
+        >
+      </label>
+
+      <select id="statusFilter">
+        <option value="all">Todos los estados</option>
+        <option value="current">Vigente</option>
+        <option value="soon">Próximo a vencer</option>
+        <option value="overdue">Vencido</option>
+      </select>
+
+      <select id="paymentFilter">
+        <option value="all">Todos los pagos</option>
+        <option value="paid">Pagados</option>
+        <option value="pending">Pendientes</option>
+      </select>
+
+    </div>
+
+    <p id="resultText" class="result-text"></p>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Cliente</th>
+            <th>Plan</th>
+            <th>Equipo / serial</th>
+            <th>Instalación</th>
+            <th>Fecha de corte</th>
+            <th>Servicio</th>
+            <th>Pago</th>
+            <th>Acciones</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="clientRows"></tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<!-- AGREGAR / EDITAR CLIENTE -->
+
+<dialog id="clientDialog">
+
+  <form id="clientForm">
+
+    <div class="modal-header">
+
+      <h2 id="formTitle">Agregar cliente</h2>
+
+      <button
+        class="close"
+        type="button"
+        id="closeDialog"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <input id="editingId" type="hidden">
+
+    <div class="form-grid">
+
+      <label>
+        Nombre completo
+        <input
+          id="name"
+          name="name"
+          type="text"
+          required
+        >
+      </label>
+
+      <label>
+        Teléfono
+        <input
+          id="phone"
+          name="phone"
+          type="tel"
+          placeholder="3001234567"
+          required
+        >
+      </label>
+
+      <label>
+        Dirección
+        <input
+          id="address"
+          name="address"
+          type="text"
+          required
+        >
+      </label>
+
+      <label>
+        Plan
+
+        <select id="plan" name="plan" required>
+          <option value="30 Mbps">30 Mbps</option>
+          <option value="50 Mbps">50 Mbps</option>
+          <option value="100 Mbps">100 Mbps</option>
+          <option value="200 Mbps">200 Mbps</option>
+          <option value="300 Mbps">300 Mbps</option>
+          <option value="500 Mbps">500 Mbps</option>
+        </select>
+
+      </label>
+
+      <label>
+        Equipo
+        <input
+          id="device"
+          name="device"
+          type="text"
+          required
+        >
+      </label>
+
+      <label>
+        Serial
+        <input
+          id="serial"
+          name="serial"
+          type="text"
+          required
+        >
+      </label>
+
+      <label>
+        Fecha de instalación
+        <input
+          id="installation"
+          name="installation"
+          type="date"
+          required
+        >
+      </label>
+
+      <label>
+        Fecha de corte
+        <input
+          id="cutoff"
+          name="cutoff"
+          type="date"
+          required
+        >
+      </label>
+
+    </div>
+
+    <div class="modal-actions">
+
+      <button
+        class="button secondary"
+        type="button"
+        id="cancelDialog"
+      >
+        Cancelar
+      </button>
+
+      <button
+        class="button"
+        type="submit"
+      >
+        Guardar cliente
+      </button>
+
+    </div>
+
+  </form>
+
+</dialog>
+
+
+<!-- REGISTRAR / EDITAR PAGO -->
+
+<dialog id="paymentDialog">
+
+  <form id="paymentForm">
+
+    <div class="modal-header">
+
+      <div>
+
+        <h2 id="paymentTitle">Registrar pago</h2>
+
+        <p
+          id="paymentClientName"
+          class="modal-subtitle"
+        ></p>
+
+      </div>
+
+      <button
+        class="close"
+        type="button"
+        id="closePaymentDialog"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <input id="paymentClientId" type="hidden">
+
+    <div class="form-grid">
+
+      <label>
+        Valor pagado
+
+        <input
+          id="paymentAmount"
+          type="number"
+          min="0"
+          step="100"
+          placeholder="50000"
+          required
+        >
+
+      </label>
+
+      <label>
+        Método de pago
+
+        <select id="paymentMethod" required>
+          <option value="Efectivo">💵 Efectivo</option>
+          <option value="Nequi">📱 Nequi</option>
+          <option value="Daviplata">📱 Daviplata</option>
+          <option value="Transferencia">🏦 Transferencia</option>
+          <option value="Tarjeta">💳 Tarjeta</option>
+          <option value="Otro">Otro</option>
+        </select>
+
+      </label>
+
+      <label>
+        Fecha del pago
+
+        <input
+          id="paymentDate"
+          type="date"
+          required
+        >
+
+      </label>
+
+    </div>
+
+    <div class="modal-actions">
+
+      <button
+        class="button secondary"
+        type="button"
+        id="cancelPayment"
+      >
+        Cancelar
+      </button>
+
+      <button
+        class="button payment-save"
+        type="submit"
+      >
+        Guardar pago
+      </button>
+
+    </div>
+
+  </form>
+
+</dialog>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
